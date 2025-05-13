@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Articulo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class ArticuloController extends Controller
 {
@@ -43,8 +45,18 @@ class ArticuloController extends Controller
      */
     public function show(string $id)
     {
-        $articulo = Articulo::findOrFail($id);
-        return response()->json($articulo);
+        //$articulo = Articulo::findOrFail($id);
+        //return response()->json($articulo);
+
+        try {
+            $articulo = Articulo::findOrFail($id);
+            return response()->json($articulo);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Artículo no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 
     /**
@@ -69,7 +81,16 @@ class ArticuloController extends Controller
      */
     public function destroy(string $id)
     {
-        Articulo::findOrFail($id)->delete();
-        return response()->json(['message' => 'Artículo eliminado correctamente'], 200); // 200-> Ëxito en la actualización y eliminación
+        //Articulo::findOrFail($id)->delete();
+        //return response()->json(['message' => 'Artículo eliminado correctamente'], 200); // 200-> Ëxito en la actualización y eliminación
+        try {
+            Articulo::findOrFail($id)->delete();
+            return response()->json(['message' => 'Artículo eliminado correctamente'], 200); // 200-> Ëxito en la actualización y eliminación
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Artículo no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 }

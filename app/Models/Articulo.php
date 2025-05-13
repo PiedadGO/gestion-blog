@@ -14,6 +14,7 @@ class Articulo extends Model
     
     protected $table = 'articulos';
     protected $fillable = ['titulo', 'contenido', 'autor', 'fecha_publicacion'];
+    
     public function comentarios(): HasMany
     {
         return $this->hasMany(Comentario::class);
