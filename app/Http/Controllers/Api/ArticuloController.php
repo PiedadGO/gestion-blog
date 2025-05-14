@@ -57,6 +57,15 @@ class ArticuloController extends Controller
                 'codigo' => 404
             ], 404);
         }
+        //$articulo = Articulo::findOrFail($id);
+        //$respuesta = response()->json($articulo);
+        //return response()->json($articulo);
+
+        /*if ($respuesta->ok()) {
+            dd($respuesta);
+        } else {
+            dd("Artículo no encontrado, 404");
+        }*/
     }
 
     /**
@@ -64,16 +73,23 @@ class ArticuloController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'titulo' => 'sometimes|required|string|max:255',
-            'contenido' => 'sometimes|required|string|min:1',
-            'autor' => 'sometimes|required|string|max:100',
-            'fecha_publicacion' => 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'titulo' => 'sometimes|required|string|max:255',
+                'contenido' => 'sometimes|required|string|min:1',
+                'autor' => 'sometimes|required|string|max:100',
+                'fecha_publicacion' => 'nullable|date',
+            ]);
 
-        $articulo = Articulo::findOrFail($id);
-        $articulo->update($validated);
-        return response()->json($articulo, 200); // 200-> Ëxito en la actualización y eliminación
+            $articulo = Articulo::findOrFail($id);
+            $articulo->update($validated);
+            return response()->json($articulo, 200); // 200-> Ëxito en la actualización y eliminación
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Artículo no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Comentario;
 use App\Models\Articulo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 
@@ -22,7 +23,7 @@ class ComentarioController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    
+
     public function store(Request $request, $articulo_id)
     //contenido autor fecha_publicacion id_articulo
     {
@@ -42,18 +43,15 @@ class ComentarioController extends Controller
                 //'id_articulo.exists' => 'El artículo especificado no existe',
             ]
         );
-
         $articulo = Articulo::find($articulo_id);
         if (!$articulo) {
             return response()->json(['error' => 'Artículo no encontrado'], 404);
-        }else{
+        } else {
             $validated['fecha_publicacion'] = $validated['fecha_publicacion'] ?? now();
             $validated['id_articulo'] = $articulo_id;
             $comentario = Comentario::create($validated);
             return response()->json($comentario, 201);
         }
-
-        
     }
 
     /**
@@ -61,8 +59,15 @@ class ComentarioController extends Controller
      */
     public function show(string $id)
     {
-        $comentario = Comentario::findOrFail($id);
-        return response()->json($comentario);
+        try {
+            $comentario = Comentario::findOrFail($id);
+            return response()->json($comentario);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Comentario no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 
     /**
@@ -73,14 +78,21 @@ class ComentarioController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'contenido' => 'sometimes|required|string|min:1',
-            'autor' => 'sometimes|required|string|max:100',
-            'fecha_publicacion' => 'nullable|date',
-        ]);
-        $comentario = Comentario::findOrFail($id);
-        $comentario->update($validated);
-        return response()->json($comentario, 200);
+        try {
+            $validated = $request->validate([
+                'contenido' => 'sometimes|required|string|min:1',
+                'autor' => 'sometimes|required|string|max:100',
+                'fecha_publicacion' => 'nullable|date',
+            ]);
+            $comentario = Comentario::findOrFail($id);
+            $comentario->update($validated);
+            return response()->json($comentario, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Comentario no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 
     /**
@@ -88,7 +100,14 @@ class ComentarioController extends Controller
      */
     public function destroy(string $id)
     {
-        Comentario::findOrFail($id)->delete();
-        return response()->json(['message' => 'Comentario eliminado correctamente'], 200);
+        try {
+            Comentario::findOrFail($id)->delete();
+            return response()->json(['message' => 'Comentario eliminado correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Comentario no encontrado',
+                'codigo' => 404
+            ], 404);
+        }
     }
 }
