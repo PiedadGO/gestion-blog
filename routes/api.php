@@ -12,5 +12,5 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('articulos', ArticuloController::class);
 Route::apiResource('comentarios', ComentarioController::class);
-Route::get('/articulos/{id}/comentarios', [ComentarioController::class, 'index']);
+Route::get('/articulos/{id}/comentarios', [ComentarioController::class, 'showCbyA']);
 Route::post('/articulos/{id}/comentarios', [ComentarioController::class, 'store']);

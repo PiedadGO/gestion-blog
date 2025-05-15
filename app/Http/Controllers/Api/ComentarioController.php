@@ -71,6 +71,18 @@ class ComentarioController extends Controller
     }
 
     /**
+     * Show comments related to id_articulo
+     */
+    public function showCbyA(string $id)
+    {
+        $comentarios = Comentario::where('id_articulo', $id)->get();
+
+        return response()->json($comentarios);
+    }
+
+
+
+    /**
      * Update the specified resource in storage.
      * Meditada posibilidad de permitir mover un comentario de un artículo a otro. Se decide no permitir la opción de cambiar a qué 
      * artículo está asociado el comentario. Si, por error, se asocia un comentario a un artículo diferente, procedería borrar el comentario
