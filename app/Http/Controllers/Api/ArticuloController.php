@@ -25,12 +25,13 @@ class ArticuloController extends Controller
     //titulo contenido autor fecha_publicacion;
     {
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
+            'titulo' => 'required|string|max:55',
             'contenido' => 'required|string|min:1',
             'autor' => 'required|string|max:100',
             'fecha_publicacion' => 'nullable|date',
         ], [
             'titulo.required' => 'El título es obligatorio.',
+            'titulo.max.string' => 'La longitud del título no puede exceder de 55 caracteres',
             'contenido.required' => 'El artículo no puede estar vacío.',
             'autor.required' => 'Debe introducir el nombre del autor.',
             'fecha_publicacion.date' => 'La fecha de publicación debe tener un formato válido (Ejemplo: "2025-01-30 12:21:59").'
@@ -73,22 +74,25 @@ class ArticuloController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        try {
+        $articulo = Articulo::find($id);
+
+        if ($articulo){
             $validated = $request->validate([
-                'titulo' => 'sometimes|required|string|max:255',
+                'titulo' => 'sometimes|required|string|max:55',
                 'contenido' => 'sometimes|required|string|min:1',
                 'autor' => 'sometimes|required|string|max:100',
                 'fecha_publicacion' => 'nullable|date',
+            ],[
+                'titulo.required' => 'El título es obligatorio.',
+                'titulo.max.string' => 'La longitud del título no puede exceder de 55 caracteres',
+                'contenido.required' => 'El artículo no puede estar vacío.',
+                'autor.required' => 'Debe introducir el nombre del autor.',
+                'fecha_publicacion.date' => 'La fecha de publicación debe tener un formato válido (Ejemplo: "2025-01-30 12:21:59").'
             ]);
-
-            $articulo = Articulo::findOrFail($id);
             $articulo->update($validated);
             return response()->json($articulo, 200); // 200-> Ëxito en la actualización y eliminación
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Artículo no encontrado',
-                'codigo' => 404
-            ], 404);
+        }else{
+            return response()->json(['mensaje' => 'Artículo no encontrado'], 404);
         }
     }
 

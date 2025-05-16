@@ -75,9 +75,14 @@ class ComentarioController extends Controller
      */
     public function showCbyA(string $id)
     {
-        $comentarios = Comentario::where('id_articulo', $id)->get();
+        $articulo = Articulo::find($id);
+        if ($articulo){
+            $comentarios = Comentario::where('id_articulo', $id)->get();
+            return response()->json($comentarios);
+        }else{
+            return response()->json(['error' => 'Artículo no encontrado'], 404);
+        }
 
-        return response()->json($comentarios);
     }
 
 
@@ -90,20 +95,25 @@ class ComentarioController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        try {
-            $validated = $request->validate([
-                'contenido' => 'sometimes|required|string|min:1',
-                'autor' => 'sometimes|required|string|max:100',
-                'fecha_publicacion' => 'nullable|date',
-            ]);
-            $comentario = Comentario::findOrFail($id);
+        $comentario = Comentario::find($id);
+
+        if ($comentario) {
+            $validated = $request->validate(
+                [
+                    'contenido' => 'sometimes|required|string|min:1',
+                    'autor' => 'sometimes|required|string|max:100',
+                    'fecha_publicacion' => 'nullable|date',
+                ],
+                [
+                    'contenido.required' => 'El comentario no puede estar vacío',
+                    'autor.required' => 'Debes introducir el nombre del autor',
+                    'fecha_publicacion.date' => 'La fecha de publicación debe tener un formato válido (Ejemplo: "2025-01-30 12:21:59").',
+                ]
+            );
             $comentario->update($validated);
             return response()->json($comentario, 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Comentario no encontrado',
-                'codigo' => 404
-            ], 404);
+        } else {
+            return response()->json(['mensaje' => 'Comentario no encontrado'], 404);
         }
     }
 
